@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Compensation | Argentina 2025</title>
+    <style>
+        :root {
+            --primary: #004481;
+            --secondary: #2DCCCD;
+            --bg: #F4F6F8;
+            --text: #222;
+            --border: #E0E0E0;
+            --hint: #666;
+            --link: #1973B8;
+        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
+        .container { max-width: 1100px; width: 100%; background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Header */
+        .header { background: var(--primary); color: white; padding: 35px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 22px; font-weight: 400; letter-spacing: 0.5px; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        
+        .lang-switch { display: flex; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; overflow: hidden; }
+        .lang-opt { font-size: 11px; font-weight: 700; padding: 5px 10px; cursor: pointer; transition: 0.2s; color: rgba(255,255,255,0.7); }
+        .lang-opt:hover { background: rgba(255,255,255,0.1); color: white; }
+        .lang-opt.active { background: white; color: var(--primary); }
+
+        /* Grid */
+        .main-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; border-bottom: 1px solid var(--border); }
+        
+        /* Inputs */
+        .inputs { padding: 40px; border-right: 1px solid var(--border); background: #fff; }
+        .row { display: flex; gap: 20px; margin-bottom: 25px; }
+        .col { flex: 1; }
+        
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #444; }
+        .input-wrap { position: relative; }
+        .input-prefix { position: absolute; left: 12px; top: 13px; color: #999; font-size: 14px; pointer-events: none; }
+        
+        input, select { width: 100%; padding: 12px 12px 12px 30px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; transition: 0.2s; box-sizing: border-box; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0,68,129,0.1); }
+        
+        /* Hints */
+        .smart-hint { font-size: 11px; color: var(--hint); margin-top: 6px; display: flex; justify-content: space-between; align-items: center; min-height: 16px; }
+        .apply-link { color: var(--link); cursor: pointer; font-weight: 600; text-decoration: none; border-bottom: 1px dashed var(--link); }
+        
+        /* Toggles */
+        .toggle-container { display: flex; background: #f0f0f0; padding: 4px; border-radius: 6px; margin-bottom: 25px; }
+        .toggle-opt { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-size: 14px; font-weight: 600; border-radius: 4px; color: #666; transition: 0.2s; }
+        .toggle-opt.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* Deductions */
+        .advanced-deductions { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 25px; background: #fff; }
+        .deduction-header { padding: 15px 20px; background: #f8f9fa; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; }
+        .deduction-body { padding: 20px; display: none; border-top: 1px solid var(--border); }
+        .deduction-body.open { display: block; }
+
+        .btn-calc { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-calc:hover { background: #003366; }
+
+        /* Results */
+        .results { padding: 40px; background: #F9FAFB; display: flex; flex-direction: column; }
+        .summary-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 25px; text-align: center; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .summary-label { font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 1px; }
+        .summary-value { font-size: 42px; color: var(--primary); font-weight: 700; margin: 10px 0; line-height: 1; }
+        .summary-sub { font-size: 18px; color: #666; font-weight: 500; }
+
+        .report-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .report-table th { text-align: right; color: #888; font-weight: 600; padding: 10px; border-bottom: 1px solid #ddd; font-size: 12px; text-transform: uppercase; }
+        .report-table th:first-child { text-align: left; }
+        .report-table td { padding: 12px 10px; border-bottom: 1px solid #eee; text-align: right; color: #333; }
+        .report-table td:first-child { text-align: left; font-weight: 500; color: #555; }
+        .report-table tr:last-child td { border-bottom: none; }
+        .report-table .total-row td { font-weight: 700; color: #D32F2F; border-top: 2px solid #eee; font-size: 15px; }
+        .rate-display { margin-top: auto; text-align: center; font-size: 13px; color: #888; padding-top: 20px; border-top: 1px solid #eee; }
+
+        @media (max-width: 850px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .inputs { border-right: none; border-bottom: 1px solid var(--border); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <h1 data-i18n="app_title">Executive Compensation</h1>
+            <p style="margin:0; opacity:0.8; font-size:13px;" data-i18n="app_subtitle">Unified Market • Fiscal Year 2025</p>
+        </div>
+        <div class="header-controls">
+            <div class="lang-switch">
+                <div class="lang-opt active" onclick="changeLanguage('en')">EN</div>
+                <div class="lang-opt" onclick="changeLanguage('es')">ES</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="inputs">
+            <div class="toggle-container">
+                <div class="toggle-opt active" id="btn-monthly" onclick="setMode('monthly')" data-i18n="btn_monthly">Monthly Salary</div>
+                <div class="toggle-opt" id="btn-annual" onclick="setMode('annual')" data-i18n="btn_annual">Annual Package</div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label data-i18n="lbl_currency">Currency</label>
+                    <div class="input-wrap">
+                        <select id="currency" onchange="toggleRateInput()">
+                            <option value="ARS" data-i18n="opt_ars">ARS - Pesos</option>
+                            <option value="USD" data-i18n="opt_usd">USD - Dollars</option>
+                            <option value="EUR" data-i18n="opt_eur">EUR - Euros</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col" id="rate-col" style="display:none;">
+                    <label data-i18n="lbl_exchange">Exchange Rate</label>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="text" id="exchange-rate" placeholder="1250.50" onkeyup="updateHints()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-wrap" style="margin-bottom: 25px;">
+                <label id="salary-label" data-i18n="lbl_gross_monthly">Gross Monthly Salary</label>
+                <div class="input-wrap">
+                    <span class="input-prefix" id="salary-symbol">$</span>
+                    <input type="text" id="salary-input" placeholder="0" onkeyup="updateHints()">
+                </div>
+            </div>
+
+            <span class="section-label" data-i18n="sec_family">Family Configuration</span>
+            <div class="row">
+                <div class="col">
+                    <label data-i18n="lbl_spouse">Spouse (No Income)</label>
+                    <select id="spouse" onchange="updateHints()">
+                        <option value="0" data-i18n="opt_no">No</option>
+                        <option value="1" data-i18n="opt_yes">Yes</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label data-i18n="lbl_children">Children (< 18)</label>
+                    <div class="input-wrap">
+                        <span class="input-prefix">#</span>
+                        <input type="number" id="children" value="0" min="0" onchange="updateHints()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="advanced-deductions">
+                <div class="deduction-header" onclick="toggleDeductions()">
+                    <span data-i18n="header_deductions">Special Deductions</span>
+                    <span id="arrow">▼</span>
+                </div>
+                <div class="deduction-body" id="deduction-body">
+                    <div class="row">
+                        <div class="col">
+                            <label data-i18n="lbl_domestic">Domestic Staff (Monthly)</label>
+                            <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-domestic" placeholder="0"></div>
+                            <div class="smart-hint" id="hint-container-domestic">
+                                <span class="hint-text">Cap: <span id="hint-domestic">-</span>/yr</span>
+                                <span class="apply-link" onclick="applyMax('ded-domestic', 'val-domestic')" data-i18n="link_apply">Apply Max</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label data-i18n="lbl_rent">Rent Paid (Monthly)</label>
+                            <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-rent" placeholder="0"></div>
+                            <div class="smart-hint">
+                                <span data-i18n="hint_rent">Cap: 40% (GNI) + 10%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label data-i18n="lbl_health">Prepaga (Extra)</label>
+                            <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-health" placeholder="0"></div>
+                            <div class="smart-hint" id="hint-container-health">
+                                <span class="hint-text">Cap: <span id="hint-health">-</span>/yr</span>
+                                <span class="apply-link" onclick="applyMax('ded-health', 'val-health')" data-i18n="link_apply">Apply Max</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label data-i18n="lbl_edu">Education</label>
+                            <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-edu" placeholder="0"></div>
+                            <div class="smart-hint" id="hint-container-edu">
+                                <span class="hint-text">Cap: <span id="hint-edu">-</span>/yr</span>
+                                <span class="apply-link" onclick="applyMax('ded-edu', 'val-edu')" data-i18n="link_apply">Apply Max</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label data-i18n="lbl_life">Life Insurance (Monthly)</label>
+                            <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-life" placeholder="0"></div>
+                            <div class="smart-hint" id="hint-container-life">
+                                <span class="hint-text">Cap: <span id="hint-life">-</span>/yr</span>
+                                <span class="apply-link" onclick="applyMax('ded-life', 'val-life')" data-i18n="link_apply">Apply Max</span>
+                            </div>
+                        </div>
+                        <div class="col"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-calc" onclick="calculate()" data-i18n="btn_calc">Calculate Compensation</button>
+        </div>
+
+        <div class="results">
+            <div class="summary-card">
+                <div class="summary-label" data-i18n="res_label_net">Standard Monthly Net</div>
+                <div class="summary-value" id="res-net-main">-</div>
+                <div class="summary-sub" id="res-net-sec"></div>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th data-i18n="th_concept">Concept</th>
+                        <th data-i18n="th_monthly">Standard Month</th>
+                        <th data-i18n="th_annual">Annual Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-i18n="row_gross">Gross Salary</td>
+                        <td id="tbl-gross-m">-</td>
+                        <td id="tbl-gross-a">-</td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row_sac">SAC (Aguinaldo)</td>
+                        <td id="tbl-sac-m" style="color:#999;">-</td>
+                        <td id="tbl-sac-a">-</td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row_social">Social Security</td>
+                        <td id="tbl-social-m">-</td>
+                        <td id="tbl-social-a">-</td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row_tax">Income Tax</td>
+                        <td id="tbl-tax-m">-</td>
+                        <td id="tbl-tax-a">-</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td data-i18n="row_total_ded">Total Deductions</td>
+                        <td id="tbl-ded-m">-</td>
+                        <td id="tbl-ded-a">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong data-i18n="row_net">Net Income (ARS)</strong></td>
+                        <td id="tbl-net-m" style="font-weight:700; color:var(--primary)">-</td>
+                        <td id="tbl-net-a" style="font-weight:700; color:var(--primary)">-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="rate-display">
+                <span data-i18n="lbl_eff_rate">Effective Tax Rate:</span> <strong id="eff-rate">0%</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- TRANSLATIONS ---
+    const i18n = {
+        en: {
+            app_title: "Executive Compensation",
+            app_subtitle: "Unified Market • Fiscal Year 2025",
+            btn_monthly: "Monthly Salary",
+            btn_annual: "Annual Package",
+            lbl_currency: "Contract Currency",
+            opt_ars: "ARS - Pesos Argentinos",
+            opt_usd: "USD - US Dollars",
+            opt_eur: "EUR - Euros",
+            lbl_exchange: "Exchange Rate",
+            lbl_gross_monthly: "Gross Monthly Salary",
+            lbl_gross_annual: "Gross Annual Package",
+            sec_family: "Family Configuration",
+            lbl_spouse: "Spouse (No Income)",
+            opt_no: "No",
+            opt_yes: "Yes",
+            lbl_children: "Children (< 18)",
+            header_deductions: "Special Deductions",
+            lbl_domestic: "Domestic Staff (Monthly)",
+            lbl_rent: "Rent Paid (Monthly)",
+            lbl_health: "Prepaga (Extra)",
+            lbl_edu: "Education",
+            lbl_life: "Life Insurance (Monthly)",
+            link_apply: "Apply Max",
+            hint_rent: "Cap: 40% (GNI) + 10%",
+            hint_cap_prefix: "Cap: ",
+            hint_cap_suffix: "/yr",
+            btn_calc: "Calculate Compensation",
+            res_label_net: "Standard Monthly Net",
+            th_concept: "Concept",
+            th_monthly: "Standard Month",
+            th_annual: "Annual Total",
+            row_gross: "Gross Salary",
+            row_sac: "SAC (Aguinaldo)",
+            row_social: "Social Security",
+            row_tax: "Income Tax",
+            row_total_ded: "Total Deductions",
+            row_net: "Net Income (ARS)",
+            lbl_eff_rate: "Effective Tax Rate:"
+        },
+        es: {
+            app_title: "Compensación Ejecutiva",
+            app_subtitle: "Mercado Unificado • Año Fiscal 2025",
+            btn_monthly: "Sueldo Mensual",
+            btn_annual: "Paquete Anual",
+            lbl_currency: "Moneda de Contrato",
+            opt_ars: "ARS - Pesos Argentinos",
+            opt_usd: "USD - Dólares",
+            opt_eur: "EUR - Euros",
+            lbl_exchange: "Tipo de Cambio",
+            lbl_gross_monthly: "Sueldo Bruto Mensual",
+            lbl_gross_annual: "Paquete Bruto Anual",
+            sec_family: "Grupo Familiar",
+            lbl_spouse: "Cónyuge (Sin ingresos)",
+            opt_no: "No",
+            opt_yes: "Sí",
+            lbl_children: "Hijos (< 18)",
+            header_deductions: "Deducciones Especiales",
+            lbl_domestic: "Servicio Doméstico (Mes)",
+            lbl_rent: "Alquiler (Mes)",
+            lbl_health: "Prepaga (Excedente)",
+            lbl_edu: "Educación",
+            lbl_life: "Seguro de Vida (Mensual)",
+            link_apply: "Aplicar Tope",
+            hint_rent: "Tope: 40% (GNI) + 10%",
+            hint_cap_prefix: "Tope: ",
+            hint_cap_suffix: "/año",
+            btn_calc: "Calcular Sueldo Neto",
+            res_label_net: "Neto Mensual Estándar",
+            th_concept: "Concepto",
+            th_monthly: "Mes Estándar",
+            th_annual: "Total Anual",
+            row_gross: "Sueldo Bruto",
+            row_sac: "SAC (Aguinaldo)",
+            row_social: "Cargas Sociales",
+            row_tax: "Impuesto a las Ganancias",
+            row_total_ded: "Total Deducciones",
+            row_net: "Sueldo Neto (ARS)",
+            lbl_eff_rate: "Tasa Efectiva:"
+        }
+    };
+
+    let currentLang = 'en';
+    const CFG = {
+        SOCIAL_CAP: 3645898.00, 
+        GNI_ANNUAL: 4211886.94,
+        DED_SPECIAL: 20217057.35,
+        DED_SPOUSE: 3966752.72,
+        DED_CHILD: 2000447.87,
+        CAP_LIFE_INSURANCE: 573817.13,
+        PCT_RENTAL: 0.40, 
+        PCT_RENTAL_EXTRA: 0.10,
+        PCT_EDU: 0.40, 
+        PCT_HEALTH: 0.05
+    };
+
+    let inputMode = 'monthly';
+    let dynamicCaps = { 'val-domestic': 0, 'val-health': 0, 'val-edu': 0, 'val-life': 0 };
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-opt').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.lang-opt[onclick="changeLanguage('${lang}')"]`).classList.add('active');
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if(i18n[lang][key]) el.innerText = i18n[lang][key];
+        });
+        const labelKey = inputMode === 'annual' ? 'lbl_gross_annual' : 'lbl_gross_monthly';
+        document.getElementById('salary-label').innerText = i18n[lang][labelKey];
+        updateHints();
+    }
+
+    function setMode(mode) {
+        inputMode = mode;
+        document.querySelectorAll('.toggle-opt').forEach(el => el.classList.remove('active'));
+        document.querySelector(`#btn-${mode}`).classList.add('active');
+        const labelKey = mode === 'annual' ? 'lbl_gross_annual' : 'lbl_gross_monthly';
+        document.getElementById('salary-label').innerText = i18n[currentLang][labelKey];
+        updateHints();
+    }
+
+    function toggleRateInput() {
+        const curr = document.getElementById('currency').value;
+        document.getElementById('rate-col').style.display = curr === 'ARS' ? 'none' : 'block';
+        document.getElementById('salary-symbol').innerText = curr === 'EUR' ? '€' : '$';
+        updateHints();
+    }
+
+    function toggleDeductions() {
+        const body = document.getElementById('deduction-body');
+        body.classList.toggle('open');
+        document.getElementById('arrow').innerText = body.classList.contains('open') ? '▲' : '▼';
+    }
+
+    // Helper to parse "1.000.000" correctly regardless of locale mixing
+    function parseNumber(val) {
+        if (!val) return 0;
+        // Remove dots (thousands) and replace comma with dot (decimal) for standard JS float parsing
+        // Note: This assumes "European/Argentine" style input: 1.234,56
+        let clean = val.replace(/\./g, '').replace(/,/g, '.');
+        return parseFloat(clean) || 0;
+    }
+
+    function updateHints() {
+        const fmt = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+        const currency = document.getElementById('currency').value;
+        const rawSalary = parseNumber(document.getElementById('salary-input').value);
+        const rate = parseNumber(document.getElementById('exchange-rate').value) || 1;
+        
+        let annualGrossARS = 0;
+        const salaryARS = currency === 'ARS' ? rawSalary : rawSalary * rate;
+
+        if (inputMode === 'annual') {
+            annualGrossARS = salaryARS;
+        } else {
+            annualGrossARS = salaryARS * 13; 
+        }
+
+        const capDomestic = CFG.GNI_ANNUAL;
+        dynamicCaps['val-domestic'] = capDomestic / 12;
+        setHintText('hint-domestic', 'hint-container-domestic', fmt(capDomestic));
+
+        const capEdu = CFG.GNI_ANNUAL * CFG.PCT_EDU;
+        dynamicCaps['val-edu'] = capEdu / 12;
+        setHintText('hint-edu', 'hint-container-edu', fmt(capEdu));
+
+        const capLife = CFG.CAP_LIFE_INSURANCE;
+        dynamicCaps['val-life'] = capLife / 12;
+        setHintText('hint-life', 'hint-container-life', fmt(capLife));
+
+        // Health Estimate
+        const socialEst = Math.min(annualGrossARS / 13, CFG.SOCIAL_CAP) * 0.17 * 13;
+        const estNetCumulative = annualGrossARS - socialEst;
+        const capHealth = Math.max(0, estNetCumulative * CFG.PCT_HEALTH);
+        dynamicCaps['val-health'] = capHealth / 12;
+        setHintText('hint-health', 'hint-container-health', fmt(capHealth));
+    }
+
+    function setHintText(valueSpanId, containerId, value) {
+        document.getElementById(valueSpanId).innerText = value;
+        // No innerHTML replacement of the container to avoid duplication bugs.
+        // We rely on static HTML structure and just update the span text.
+    }
+
+    function applyMax(inputId, valKey) {
+        const val = dynamicCaps[valKey];
+        if(val > 0) {
+            document.getElementById(inputId).value = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
+        } else {
+            alert(currentLang === 'en' ? "Enter salary first." : "Ingrese salario primero.");
+        }
+    }
+
+    function calculate() {
+        const currency = document.getElementById('currency').value;
+        const salaryInput = parseNumber(document.getElementById('salary-input').value);
+        const rate = parseNumber(document.getElementById('exchange-rate').value) || 1;
+        
+        if(salaryInput === 0) return;
+
+        const rawArs = currency === 'ARS' ? salaryInput : salaryInput * rate;
+        let grossArsMonthly, grossArsAnnual, sacAmount;
+
+        if (inputMode === 'annual') {
+            grossArsAnnual = rawArs;
+            grossArsMonthly = rawArs / 13; 
+            sacAmount = grossArsMonthly; 
+        } else {
+            grossArsMonthly = rawArs;
+            sacAmount = grossArsMonthly;
+            grossArsAnnual = (rawArs * 12) + sacAmount; 
+        }
+
+        const baseForSocial = Math.min(grossArsMonthly, CFG.SOCIAL_CAP);
+        const socialMonthly = baseForSocial * 0.17;
+        const sacBaseForSocial = Math.min(sacAmount, CFG.SOCIAL_CAP / 2); 
+        const socialSacTotal = (sacBaseForSocial * 0.17) * 2; // Total Annual SAC Social
+        const socialAnnual = (socialMonthly * 12) + socialSacTotal;
+
+        const netCumulativeAnnual = grossArsAnnual - socialAnnual;
+
+        const children = parseInt(document.getElementById('children').value) || 0;
+        const hasSpouse = document.getElementById('spouse').value === "1";
+        let dedPersonal = CFG.GNI_ANNUAL + CFG.DED_SPECIAL;
+        if(hasSpouse) dedPersonal += CFG.DED_SPOUSE;
+        dedPersonal += (children * CFG.DED_CHILD);
+
+        const valDomestic = parseNumber(document.getElementById('ded-domestic').value) * 12;
+        const valRent = parseNumber(document.getElementById('ded-rent').value) * 12;
+        const valHealth = parseNumber(document.getElementById('ded-health').value) * 12;
+        const valEdu = parseNumber(document.getElementById('ded-edu').value) * 12;
+        const valLife = parseNumber(document.getElementById('ded-life').value) * 12;
+
+        const dedDomestic = Math.min(valDomestic, CFG.GNI_ANNUAL);
+        const rentPart1 = Math.min(valRent * CFG.PCT_RENTAL, CFG.GNI_ANNUAL);
+        const rentPart2 = valRent * CFG.PCT_RENTAL_EXTRA;
+        const dedRent = rentPart1 + rentPart2;
+        const dedEdu = Math.min(valEdu, CFG.GNI_ANNUAL * CFG.PCT_EDU);
+        const dedLife = Math.min(valLife, CFG.CAP_LIFE_INSURANCE);
+
+        const intermediateBase = netCumulativeAnnual - dedPersonal - dedDomestic - dedRent - dedEdu - dedLife;
+        const capHealth = Math.max(0, intermediateBase * CFG.PCT_HEALTH);
+        const dedHealth = Math.min(valHealth, capHealth);
+
+        const finalTaxable = Math.max(0, intermediateBase - dedHealth);
+
+        const taxAnnual = getProgressiveTax(finalTaxable);
+        // Standard monthly retention is usually TaxAnnual / 12.
+        // But here we want to show "Standard Month" vs "Total".
+        // If we divide annual tax by 12, we are smoothing the SAC tax into the months.
+        const taxMonthly = taxAnnual / 12; 
+
+        const totalDedMonthly = socialMonthly + taxMonthly;
+        const totalDedAnnual = socialAnnual + taxAnnual;
+        
+        const netArsMonthly = grossArsMonthly - totalDedMonthly;
+        const netArsAnnual = grossArsAnnual - totalDedAnnual;
+
+        // Output Formatter (Forced es-AR for consistency)
+        const fmtArs = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
+        const fmtForeign = new Intl.NumberFormat('en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 });
+
+        if(currency === 'ARS') {
+            document.getElementById('res-net-main').innerText = fmtArs.format(netArsMonthly);
+            document.getElementById('res-net-sec').innerText = "";
+        } else {
+            document.getElementById('res-net-main').innerText = fmtForeign.format(netArsMonthly / rate);
+            document.getElementById('res-net-sec').innerText = "≈ " + fmtArs.format(netArsMonthly);
+        }
+
+        setText('tbl-gross-m', fmtArs.format(grossArsMonthly));
+        setText('tbl-gross-a', fmtArs.format(grossArsAnnual)); 
+        
+        document.getElementById('tbl-sac-m').innerText = "-"; // Removed Prorated
+        setText('tbl-sac-a', fmtArs.format(sacAmount));
+
+        setText('tbl-social-m', fmtArs.format(socialMonthly));
+        setText('tbl-social-a', fmtArs.format(socialAnnual));
+        setText('tbl-tax-m', fmtArs.format(taxMonthly));
+        setText('tbl-tax-a', fmtArs.format(taxAnnual));
+        setText('tbl-ded-m', fmtArs.format(totalDedMonthly));
+        setText('tbl-ded-a', fmtArs.format(totalDedAnnual));
+        setText('tbl-net-m', fmtArs.format(netArsMonthly));
+        setText('tbl-net-a', fmtArs.format(netArsAnnual));
+
+        const effRate = (totalDedAnnual / grossArsAnnual) * 100;
+        document.getElementById('eff-rate').innerText = effRate.toFixed(1) + "%";
+    }
+
+    function setText(id, val) { document.getElementById(id).innerText = val; }
+
+    function getProgressiveTax(income) {
+        if (income <= 0) return 0;
+        if (income <= 1635136.56) return income * 0.05;
+        if (income <= 3270273.12) return 81756.83 + (income - 1635136.56) * 0.09;
+        if (income <= 4905409.68) return 228919.12 + (income - 3270273.12) * 0.12;
+        if (income <= 7358114.52) return 425135.51 + (income - 4905409.68) * 0.15;
+        if (income <= 14716229.04) return 793041.23 + (income - 7358114.52) * 0.19;
+        if (income <= 22074343.56) return 2191082.99 + (income - 14716229.04) * 0.23;
+        if (income <= 33111515.34) return 3883449.33 + (income - 22074343.56) * 0.27;
+        if (income <= 49667273.02) return 6863485.71 + (income - 33111515.34) * 0.31;
+        return 11995770.59 + (income - 49667273.02) * 0.35;
+    }
+
+    // Auto-format inputs on type (add dots for thousands)
+    document.querySelectorAll('input[type="text"]').forEach(input => {
+        input.addEventListener('input', (e) => {
+            let cursor = e.target.selectionStart;
+            let val = e.target.value.replace(/[^0-9,]/g, ''); // Strip non-numeric, keep comma
+            // Add dots
+            let parts = val.split(',');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            e.target.value = parts.join(',');
+        });
+    });
+    
+    updateHints();
+</script>
+
+</body>
+</html>
