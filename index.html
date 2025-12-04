@@ -13,6 +13,8 @@
             --border: #E0E0E0;
             --hint: #666;
             --link: #1973B8;
+            --warning: #FFF3CD;
+            --warning-text: #856404;
         }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
         .container { max-width: 1100px; width: 100%; background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column; }
@@ -51,11 +53,14 @@
         .toggle-opt { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-size: 14px; font-weight: 600; border-radius: 4px; color: #666; transition: 0.2s; }
         .toggle-opt.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* Deductions */
-        .advanced-deductions { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 25px; background: #fff; }
-        .deduction-header { padding: 15px 20px; background: #f8f9fa; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; }
-        .deduction-body { padding: 20px; display: none; border-top: 1px solid var(--border); }
-        .deduction-body.open { display: block; }
+        /* Sections */
+        .section-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #999; font-weight: 700; display: block; margin-bottom: 15px; margin-top: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+
+        /* Deductions / Advanced */
+        .collapsible-box { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; background: #fff; }
+        .collapsible-header { padding: 15px 20px; background: #f8f9fa; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; }
+        .collapsible-body { padding: 20px; display: none; border-top: 1px solid var(--border); }
+        .collapsible-body.open { display: block; }
 
         .btn-calc { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
         .btn-calc:hover { background: #003366; }
@@ -74,7 +79,8 @@
         .report-table td:first-child { text-align: left; font-weight: 500; color: #555; }
         .report-table tr:last-child td { border-bottom: none; }
         .report-table .total-row td { font-weight: 700; color: #D32F2F; border-top: 2px solid #eee; font-size: 15px; }
-        .rate-display { margin-top: auto; text-align: center; font-size: 13px; color: #888; padding-top: 20px; border-top: 1px solid #eee; }
+        
+        .disclaimer { margin-top: auto; font-size: 12px; color: #999; padding-top: 20px; border-top: 1px solid #eee; line-height: 1.5; }
 
         @media (max-width: 850px) {
             .main-grid { grid-template-columns: 1fr; }
@@ -151,15 +157,41 @@
                 </div>
             </div>
 
-            <div class="advanced-deductions">
-                <div class="deduction-header" onclick="toggleDeductions()">
-                    <span data-i18n="header_deductions">Special Deductions</span>
-                    <span id="arrow">▼</span>
+            <div class="collapsible-box">
+                <div class="collapsible-header" onclick="toggleSection('extra-body', 'arrow-extra')">
+                    <span data-i18n="header_extras">Overtime & Union</span>
+                    <span id="arrow-extra">▼</span>
                 </div>
-                <div class="deduction-body" id="deduction-body">
+                <div class="collapsible-body" id="extra-body">
                     <div class="row">
                         <div class="col">
-                            <label data-i18n="lbl_domestic">Domestic Staff (Monthly)</label>
+                            <label data-i18n="lbl_union">Union / Other (%)</label>
+                            <div class="input-wrap">
+                                <span class="input-prefix">%</span>
+                                <input type="number" id="union-pct" placeholder="0" step="0.1">
+                            </div>
+                            <div class="smart-hint" data-i18n="hint_union">Usually 2% - 4%</div>
+                        </div>
+                        <div class="col">
+                             <label data-i18n="lbl_overtime_hrs">Overtime Hours (50%)</label>
+                             <div class="input-wrap">
+                                 <span class="input-prefix">Hrs</span>
+                                 <input type="number" id="overtime-50" placeholder="0">
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible-box">
+                <div class="collapsible-header" onclick="toggleSection('deduction-body', 'arrow-ded')">
+                    <span data-i18n="header_deductions">Special Deductions (Tax)</span>
+                    <span id="arrow-ded">▼</span>
+                </div>
+                <div class="collapsible-body" id="deduction-body">
+                    <div class="row">
+                        <div class="col">
+                            <label data-i18n="lbl_domestic">Domestic Staff (Mo)</label>
                             <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-domestic" placeholder="0"></div>
                             <div class="smart-hint" id="hint-container-domestic">
                                 <span class="hint-text">Cap: <span id="hint-domestic">-</span>/yr</span>
@@ -167,7 +199,7 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label data-i18n="lbl_rent">Rent Paid (Monthly)</label>
+                            <label data-i18n="lbl_rent">Rent Paid (Mo)</label>
                             <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-rent" placeholder="0"></div>
                             <div class="smart-hint">
                                 <span data-i18n="hint_rent">Cap: 40% (GNI) + 10%</span>
@@ -176,32 +208,19 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label data-i18n="lbl_health">Prepaga (Extra)</label>
+                            <label data-i18n="lbl_health">Prepaga (Diff)</label>
                             <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-health" placeholder="0"></div>
                             <div class="smart-hint" id="hint-container-health">
-                                <span class="hint-text">Cap: <span id="hint-health">-</span>/yr</span>
-                                <span class="apply-link" onclick="applyMax('ded-health', 'val-health')" data-i18n="link_apply">Apply Max</span>
+                                <span class="hint-text">Cap: 5% Net</span>
                             </div>
                         </div>
                         <div class="col">
-                            <label data-i18n="lbl_edu">Education</label>
-                            <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-edu" placeholder="0"></div>
-                            <div class="smart-hint" id="hint-container-edu">
-                                <span class="hint-text">Cap: <span id="hint-edu">-</span>/yr</span>
-                                <span class="apply-link" onclick="applyMax('ded-edu', 'val-edu')" data-i18n="link_apply">Apply Max</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <label data-i18n="lbl_life">Life Insurance (Monthly)</label>
+                            <label data-i18n="lbl_life">Life Insurance</label>
                             <div class="input-wrap"><span class="input-prefix">$</span><input type="text" id="ded-life" placeholder="0"></div>
                             <div class="smart-hint" id="hint-container-life">
                                 <span class="hint-text">Cap: <span id="hint-life">-</span>/yr</span>
-                                <span class="apply-link" onclick="applyMax('ded-life', 'val-life')" data-i18n="link_apply">Apply Max</span>
                             </div>
                         </div>
-                        <div class="col"></div>
                     </div>
                 </div>
             </div>
@@ -220,8 +239,8 @@
                 <thead>
                     <tr>
                         <th data-i18n="th_concept">Concept</th>
-                        <th data-i18n="th_monthly">Standard Month</th>
-                        <th data-i18n="th_annual">Annual Total</th>
+                        <th data-i18n="th_monthly">Month</th>
+                        <th data-i18n="th_annual">Annual</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -230,15 +249,20 @@
                         <td id="tbl-gross-m">-</td>
                         <td id="tbl-gross-a">-</td>
                     </tr>
-                    <tr>
-                        <td data-i18n="row_sac">SAC (Aguinaldo)</td>
-                        <td id="tbl-sac-m" style="color:#999;">-</td>
-                        <td id="tbl-sac-a">-</td>
+                    <tr id="row-overtime" style="display:none;">
+                        <td data-i18n="row_overtime">Overtime (+)</td>
+                        <td id="tbl-overtime-m">-</td>
+                        <td id="tbl-overtime-a">-</td>
                     </tr>
                     <tr>
                         <td data-i18n="row_social">Social Security</td>
                         <td id="tbl-social-m">-</td>
                         <td id="tbl-social-a">-</td>
+                    </tr>
+                    <tr id="row-union" style="display:none;">
+                        <td data-i18n="row_union">Union / Other</td>
+                        <td id="tbl-union-m">-</td>
+                        <td id="tbl-union-a">-</td>
                     </tr>
                     <tr>
                         <td data-i18n="row_tax">Income Tax</td>
@@ -246,36 +270,81 @@
                         <td id="tbl-tax-a">-</td>
                     </tr>
                     <tr class="total-row">
-                        <td data-i18n="row_total_ded">Total Deductions</td>
-                        <td id="tbl-ded-m">-</td>
-                        <td id="tbl-ded-a">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong data-i18n="row_net">Net Income (ARS)</strong></td>
+                        <td><strong data-i18n="row_net">Net Income</strong></td>
                         <td id="tbl-net-m" style="font-weight:700; color:var(--primary)">-</td>
                         <td id="tbl-net-a" style="font-weight:700; color:var(--primary)">-</td>
                     </tr>
                 </tbody>
             </table>
 
-            <div class="rate-display">
-                <span data-i18n="lbl_eff_rate">Effective Tax Rate:</span> <strong id="eff-rate">0%</strong>
+            <div class="disclaimer">
+                <strong data-i18n="lbl_taxable_base">Taxable Base:</strong> <span id="info-tax-base">-</span><br>
+                <strong data-i18n="lbl_marginal">Marginal Rate:</strong> <span id="info-marginal">-</span><br><br>
+                <span data-i18n="disclaimer_text">Calculations are orientative. Actual values may vary based on exact employment terms, collective bargaining agreements, and monthly prorations.</span>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- TRANSLATIONS ---
+    /* ============================================================================
+       1. DATA LAYER (EASY UPDATE SECTION)
+       Update these values when laws change. No logic changes needed.
+    ============================================================================
+    */
+    const TAX_DATA_2025 = {
+        // Social Security Constants [cite: 7, 8, 9]
+        SOCIAL: {
+            CAP_BASE: 3731212.01, // Base Imponible Maxima (Dec 2025 proj)
+            RATE_JUBILACION: 0.11,
+            RATE_PAMI: 0.03,
+            RATE_OBRA_SOCIAL: 0.03,
+            TOTAL_RATE: 0.17
+        },
+
+        // Overtime Divisors [cite: 18, 19]
+        OVERTIME: {
+            HOURS_DIVISOR: 160, // Standard 20 days * 8 hours
+            RATE_50: 1.5,
+            RATE_100: 2.0,
+            RATE_NIGHT: 1.833
+        },
+
+        // Income Tax (Ganancias) - 2nd Semester 2025 (Projected) [cite: 4]
+        // Note: Amounts are for the 6-month period. logic annualizes them.
+        GANANCIAS: {
+            SEMESTER_MULT: 2, // Project to 12 months for calculation
+            GNI_SEM: 4211886.94,
+            DED_SPECIAL_SEM: 20217057.35,
+            DED_SPOUSE_SEM: 3966752.72,
+            DED_CHILD_SEM: 2000447.87,
+            CAP_LIFE_INS_ANNUAL: 573817.13 * 2,
+            
+            // Accumulated Scale for 2nd Semester [cite: 4]
+            BRACKETS: [
+                { limit: 1635136.56, base: 0, rate: 0.05 },
+                { limit: 3270273.12, base: 81756.83, rate: 0.09 },
+                { limit: 4905409.68, base: 228919.12, rate: 0.12 },
+                { limit: 7358114.52, base: 425135.51, rate: 0.15 },
+                { limit: 14716229.04, base: 793041.23, rate: 0.19 },
+                { limit: 22074343.56, base: 2191083.00, rate: 0.23 },
+                { limit: 33111515.34, base: 3883449.33, rate: 0.27 },
+                { limit: 49667273.02, base: 6863485.71, rate: 0.31 },
+                { limit: Infinity, base: 11995770.59, rate: 0.35 }
+            ]
+        }
+    };
+
+    // --- TRANSLATIONS (Updated with new terms) ---
     const i18n = {
         en: {
             app_title: "Executive Compensation",
-            app_subtitle: "Unified Market • Fiscal Year 2025",
+            app_subtitle: "Unified Market • Fiscal Year 2025 (Dec Projection)",
             btn_monthly: "Monthly Salary",
             btn_annual: "Annual Package",
             lbl_currency: "Contract Currency",
-            opt_ars: "ARS - Pesos Argentinos",
-            opt_usd: "USD - US Dollars",
+            opt_ars: "ARS - Pesos",
+            opt_usd: "USD - Dollars",
             opt_eur: "EUR - Euros",
             lbl_exchange: "Exchange Rate",
             lbl_gross_monthly: "Gross Monthly Salary",
@@ -285,36 +354,39 @@
             opt_no: "No",
             opt_yes: "Yes",
             lbl_children: "Children (< 18)",
+            header_extras: "Overtime & Union",
+            lbl_union: "Union / Other (%)",
+            hint_union: "Usually 2% - 4% for Unions",
+            lbl_overtime_hrs: "Overtime Hrs (50%)",
             header_deductions: "Special Deductions",
-            lbl_domestic: "Domestic Staff (Monthly)",
-            lbl_rent: "Rent Paid (Monthly)",
-            lbl_health: "Prepaga (Extra)",
-            lbl_edu: "Education",
-            lbl_life: "Life Insurance (Monthly)",
+            lbl_domestic: "Domestic Staff (Mo)",
+            lbl_rent: "Rent Paid (Mo)",
+            lbl_health: "Prepaga (Diff)",
+            lbl_life: "Life Insurance",
             link_apply: "Apply Max",
             hint_rent: "Cap: 40% (GNI) + 10%",
-            hint_cap_prefix: "Cap: ",
-            hint_cap_suffix: "/yr",
             btn_calc: "Calculate Compensation",
             res_label_net: "Standard Monthly Net",
             th_concept: "Concept",
             th_monthly: "Standard Month",
             th_annual: "Annual Total",
             row_gross: "Gross Salary",
-            row_sac: "SAC (Aguinaldo)",
+            row_overtime: "Overtime (+)",
             row_social: "Social Security",
+            row_union: "Union / Other",
             row_tax: "Income Tax",
-            row_total_ded: "Total Deductions",
             row_net: "Net Income (ARS)",
-            lbl_eff_rate: "Effective Tax Rate:"
+            lbl_taxable_base: "Taxable Base (Annualized):",
+            lbl_marginal: "Marginal Tax Rate:",
+            disclaimer_text: "Calculations are orientative. Values may vary based on unions, agreements, and dates. "
         },
         es: {
-            app_title: "Compensación Ejecutiva",
-            app_subtitle: "Mercado Unificado • Año Fiscal 2025",
+            app_title: "Calculadora de Sueldo",
+            app_subtitle: "Mercado Unificado • Año Fiscal 2025 (Proy. Dic)",
             btn_monthly: "Sueldo Mensual",
             btn_annual: "Paquete Anual",
-            lbl_currency: "Moneda de Contrato",
-            opt_ars: "ARS - Pesos Argentinos",
+            lbl_currency: "Moneda",
+            opt_ars: "ARS - Pesos",
             opt_usd: "USD - Dólares",
             opt_eur: "EUR - Euros",
             lbl_exchange: "Tipo de Cambio",
@@ -325,45 +397,35 @@
             opt_no: "No",
             opt_yes: "Sí",
             lbl_children: "Hijos (< 18)",
-            header_deductions: "Deducciones Especiales",
+            header_extras: "Horas Extras y Sindicato",
+            lbl_union: "Sindicato / Otros (%)",
+            hint_union: "Gralmente 2% - 4% [cite: 10]",
+            lbl_overtime_hrs: "Horas Extras (50%)",
+            header_deductions: "Deducciones de Ley",
             lbl_domestic: "Servicio Doméstico (Mes)",
             lbl_rent: "Alquiler (Mes)",
             lbl_health: "Prepaga (Excedente)",
-            lbl_edu: "Educación",
-            lbl_life: "Seguro de Vida (Mensual)",
+            lbl_life: "Seguro de Vida",
             link_apply: "Aplicar Tope",
             hint_rent: "Tope: 40% (GNI) + 10%",
-            hint_cap_prefix: "Tope: ",
-            hint_cap_suffix: "/año",
             btn_calc: "Calcular Sueldo Neto",
-            res_label_net: "Neto Mensual Estándar",
+            res_label_net: "Neto Mensual Estimado",
             th_concept: "Concepto",
             th_monthly: "Mes Estándar",
             th_annual: "Total Anual",
             row_gross: "Sueldo Bruto",
-            row_sac: "SAC (Aguinaldo)",
-            row_social: "Cargas Sociales",
+            row_overtime: "Horas Extras (+)",
+            row_social: "Jubilación y Obra Soc.",
+            row_union: "Sindicato / Otros",
             row_tax: "Impuesto a las Ganancias",
-            row_total_ded: "Total Deducciones",
-            row_net: "Sueldo Neto (ARS)",
-            lbl_eff_rate: "Tasa Efectiva:"
+            row_net: "En Mano (ARS)",
+            lbl_taxable_base: "Base Imponible (Anualizada):",
+            lbl_marginal: "Alícuota Marginal:",
+            disclaimer_text: "El resultado es orientativo. Los valores pueden variar según convenio, fecha de pago y prorrateos. "
         }
     };
 
     let currentLang = 'en';
-    const CFG = {
-        SOCIAL_CAP: 3645898.00, 
-        GNI_ANNUAL: 4211886.94,
-        DED_SPECIAL: 20217057.35,
-        DED_SPOUSE: 3966752.72,
-        DED_CHILD: 2000447.87,
-        CAP_LIFE_INSURANCE: 573817.13,
-        PCT_RENTAL: 0.40, 
-        PCT_RENTAL_EXTRA: 0.10,
-        PCT_EDU: 0.40, 
-        PCT_HEALTH: 0.05
-    };
-
     let inputMode = 'monthly';
     let dynamicCaps = { 'val-domestic': 0, 'val-health': 0, 'val-edu': 0, 'val-life': 0 };
 
@@ -396,194 +458,202 @@
         updateHints();
     }
 
-    function toggleDeductions() {
-        const body = document.getElementById('deduction-body');
+    function toggleSection(bodyId, arrowId) {
+        const body = document.getElementById(bodyId);
         body.classList.toggle('open');
-        document.getElementById('arrow').innerText = body.classList.contains('open') ? '▲' : '▼';
+        document.getElementById(arrowId).innerText = body.classList.contains('open') ? '▲' : '▼';
     }
 
-    // Helper to parse "1.000.000" correctly regardless of locale mixing
     function parseNumber(val) {
         if (!val) return 0;
-        // Remove dots (thousands) and replace comma with dot (decimal) for standard JS float parsing
-        // Note: This assumes "European/Argentine" style input: 1.234,56
-        let clean = val.replace(/\./g, '').replace(/,/g, '.');
+        let clean = val.toString().replace(/\./g, '').replace(/,/g, '.');
         return parseFloat(clean) || 0;
     }
 
     function updateHints() {
         const fmt = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
-        const currency = document.getElementById('currency').value;
-        const rawSalary = parseNumber(document.getElementById('salary-input').value);
-        const rate = parseNumber(document.getElementById('exchange-rate').value) || 1;
+        const gniAnnual = TAX_DATA_2025.GANANCIAS.GNI_SEM * TAX_DATA_2025.GANANCIAS.SEMESTER_MULT;
         
-        let annualGrossARS = 0;
-        const salaryARS = currency === 'ARS' ? rawSalary : rawSalary * rate;
+        dynamicCaps['val-domestic'] = gniAnnual / 12;
+        setHintText('hint-domestic', 'hint-container-domestic', fmt(gniAnnual));
 
-        if (inputMode === 'annual') {
-            annualGrossARS = salaryARS;
-        } else {
-            annualGrossARS = salaryARS * 13; 
-        }
-
-        const capDomestic = CFG.GNI_ANNUAL;
-        dynamicCaps['val-domestic'] = capDomestic / 12;
-        setHintText('hint-domestic', 'hint-container-domestic', fmt(capDomestic));
-
-        const capEdu = CFG.GNI_ANNUAL * CFG.PCT_EDU;
-        dynamicCaps['val-edu'] = capEdu / 12;
-        setHintText('hint-edu', 'hint-container-edu', fmt(capEdu));
-
-        const capLife = CFG.CAP_LIFE_INSURANCE;
+        const capLife = TAX_DATA_2025.GANANCIAS.CAP_LIFE_INS_ANNUAL;
         dynamicCaps['val-life'] = capLife / 12;
         setHintText('hint-life', 'hint-container-life', fmt(capLife));
-
-        // Health Estimate
-        const socialEst = Math.min(annualGrossARS / 13, CFG.SOCIAL_CAP) * 0.17 * 13;
-        const estNetCumulative = annualGrossARS - socialEst;
-        const capHealth = Math.max(0, estNetCumulative * CFG.PCT_HEALTH);
-        dynamicCaps['val-health'] = capHealth / 12;
-        setHintText('hint-health', 'hint-container-health', fmt(capHealth));
     }
 
     function setHintText(valueSpanId, containerId, value) {
         document.getElementById(valueSpanId).innerText = value;
-        // No innerHTML replacement of the container to avoid duplication bugs.
-        // We rely on static HTML structure and just update the span text.
     }
 
     function applyMax(inputId, valKey) {
         const val = dynamicCaps[valKey];
-        if(val > 0) {
-            document.getElementById(inputId).value = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
-        } else {
-            alert(currentLang === 'en' ? "Enter salary first." : "Ingrese salario primero.");
-        }
+        if(val > 0) document.getElementById(inputId).value = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
     }
 
     function calculate() {
+        // --- 1. GATHER INPUTS ---
         const currency = document.getElementById('currency').value;
         const salaryInput = parseNumber(document.getElementById('salary-input').value);
         const rate = parseNumber(document.getElementById('exchange-rate').value) || 1;
-        
         if(salaryInput === 0) return;
 
+        // Convert everything to ARS Monthly first
         const rawArs = currency === 'ARS' ? salaryInput : salaryInput * rate;
-        let grossArsMonthly, grossArsAnnual, sacAmount;
+        let baseGrossMonthly = inputMode === 'annual' ? rawArs / 13 : rawArs;
 
-        if (inputMode === 'annual') {
-            grossArsAnnual = rawArs;
-            grossArsMonthly = rawArs / 13; 
-            sacAmount = grossArsMonthly; 
-        } else {
-            grossArsMonthly = rawArs;
-            sacAmount = grossArsMonthly;
-            grossArsAnnual = (rawArs * 12) + sacAmount; 
+        // --- 2. ADD OVERTIME [cite: 16, 17, 18, 19] ---
+        const otHours = parseFloat(document.getElementById('overtime-50').value) || 0;
+        let otAmountMonthly = 0;
+        if (otHours > 0) {
+            const hourlyRate = baseGrossMonthly / TAX_DATA_2025.OVERTIME.HOURS_DIVISOR;
+            otAmountMonthly = hourlyRate * TAX_DATA_2025.OVERTIME.RATE_50 * otHours;
         }
 
-        const baseForSocial = Math.min(grossArsMonthly, CFG.SOCIAL_CAP);
-        const socialMonthly = baseForSocial * 0.17;
-        const sacBaseForSocial = Math.min(sacAmount, CFG.SOCIAL_CAP / 2); 
-        const socialSacTotal = (sacBaseForSocial * 0.17) * 2; // Total Annual SAC Social
-        const socialAnnual = (socialMonthly * 12) + socialSacTotal;
+        const totalGrossMonthly = baseGrossMonthly + otAmountMonthly;
+        // Annualize (Gross * 12 + SAC)
+        // Note: SAC (Aguinaldo) is 1/12 of the total earnings
+        const sacAmount = totalGrossMonthly; // 1 month equiv
+        const totalGrossAnnual = (totalGrossMonthly * 12) + sacAmount;
 
-        const netCumulativeAnnual = grossArsAnnual - socialAnnual;
+        // --- 3. DEDUCTIONS: SOCIAL SECURITY ---
+        // Cap applies to the base, usually implies on OT too up to cap
+        const ssBase = Math.min(totalGrossMonthly, TAX_DATA_2025.SOCIAL.CAP_BASE);
+        const ssMonthly = ssBase * TAX_DATA_2025.SOCIAL.TOTAL_RATE;
+        
+        const ssSacBase = Math.min(sacAmount, TAX_DATA_2025.SOCIAL.CAP_BASE / 2); // SAC cap is 50%
+        const ssSacTotal = (ssSacBase * TAX_DATA_2025.SOCIAL.TOTAL_RATE) * 2; // Jun + Dec
+        const ssAnnual = (ssMonthly * 12) + ssSacTotal;
 
+        // --- 4. DEDUCTIONS: UNION / OTHER  ---
+        // Union is usually a % of the TOTAL Gross (Uncapped), and is deductible for Tax
+        const unionPct = parseNumber(document.getElementById('union-pct').value);
+        const unionMonthly = totalGrossMonthly * (unionPct / 100);
+        const unionAnnual = unionMonthly * 13; // Applies on SAC too usually
+
+        // --- 5. INCOME TAX (GANANCIAS) ---
+        // Net Cumulative = Gross - Social - Union
+        const netCumulativeAnnual = totalGrossAnnual - ssAnnual - unionAnnual;
+
+        // Personal Deductions
         const children = parseInt(document.getElementById('children').value) || 0;
         const hasSpouse = document.getElementById('spouse').value === "1";
-        let dedPersonal = CFG.GNI_ANNUAL + CFG.DED_SPECIAL;
-        if(hasSpouse) dedPersonal += CFG.DED_SPOUSE;
-        dedPersonal += (children * CFG.DED_CHILD);
+        const G = TAX_DATA_2025.GANANCIAS; // Shortcut
+        const mult = G.SEMESTER_MULT;
 
+        let dedPersonal = (G.GNI_SEM * mult) + (G.DED_SPECIAL_SEM * mult);
+        if(hasSpouse) dedPersonal += (G.DED_SPOUSE_SEM * mult);
+        dedPersonal += (children * (G.DED_CHILD_SEM * mult));
+
+        // General Deductions
         const valDomestic = parseNumber(document.getElementById('ded-domestic').value) * 12;
         const valRent = parseNumber(document.getElementById('ded-rent').value) * 12;
         const valHealth = parseNumber(document.getElementById('ded-health').value) * 12;
-        const valEdu = parseNumber(document.getElementById('ded-edu').value) * 12;
         const valLife = parseNumber(document.getElementById('ded-life').value) * 12;
 
-        const dedDomestic = Math.min(valDomestic, CFG.GNI_ANNUAL);
-        const rentPart1 = Math.min(valRent * CFG.PCT_RENTAL, CFG.GNI_ANNUAL);
-        const rentPart2 = valRent * CFG.PCT_RENTAL_EXTRA;
-        const dedRent = rentPart1 + rentPart2;
-        const dedEdu = Math.min(valEdu, CFG.GNI_ANNUAL * CFG.PCT_EDU);
-        const dedLife = Math.min(valLife, CFG.CAP_LIFE_INSURANCE);
+        const dedDomestic = Math.min(valDomestic, (G.GNI_SEM * mult));
+        // Rent Logic: 10% of value, capped at 40% GNI
+        const rentCap = (G.GNI_SEM * mult) * 0.40;
+        const dedRent = Math.min(valRent * 0.10, rentCap);
+        const dedLife = Math.min(valLife, G.CAP_LIFE_INS_ANNUAL);
 
-        const intermediateBase = netCumulativeAnnual - dedPersonal - dedDomestic - dedRent - dedEdu - dedLife;
-        const capHealth = Math.max(0, intermediateBase * CFG.PCT_HEALTH);
+        // Health Cap (5% of Net Income before Health)
+        const intermediateBase = netCumulativeAnnual - dedPersonal - dedDomestic - dedRent - dedLife;
+        const capHealth = Math.max(0, intermediateBase * 0.05);
         const dedHealth = Math.min(valHealth, capHealth);
 
-        const finalTaxable = Math.max(0, intermediateBase - dedHealth);
+        const finalTaxableAnnual = Math.max(0, intermediateBase - dedHealth);
 
-        const taxAnnual = getProgressiveTax(finalTaxable);
-        // Standard monthly retention is usually TaxAnnual / 12.
-        // But here we want to show "Standard Month" vs "Total".
-        // If we divide annual tax by 12, we are smoothing the SAC tax into the months.
+        // Calculate Tax
+        const taxResult = calculateTax(finalTaxableAnnual, G.BRACKETS, mult);
+        const taxAnnual = taxResult.tax;
         const taxMonthly = taxAnnual / 12; 
 
-        const totalDedMonthly = socialMonthly + taxMonthly;
-        const totalDedAnnual = socialAnnual + taxAnnual;
-        
-        const netArsMonthly = grossArsMonthly - totalDedMonthly;
-        const netArsAnnual = grossArsAnnual - totalDedAnnual;
+        // --- 6. DISPLAY RESULTS ---
+        const totalDedMonthly = ssMonthly + unionMonthly + taxMonthly;
+        const netMonthly = totalGrossMonthly - totalDedMonthly;
 
-        // Output Formatter (Forced es-AR for consistency)
         const fmtArs = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
         const fmtForeign = new Intl.NumberFormat('en-US', { style: 'currency', currency: currency, maximumFractionDigits: 0 });
 
+        // Main Number
         if(currency === 'ARS') {
-            document.getElementById('res-net-main').innerText = fmtArs.format(netArsMonthly);
+            document.getElementById('res-net-main').innerText = fmtArs.format(netMonthly);
             document.getElementById('res-net-sec').innerText = "";
         } else {
-            document.getElementById('res-net-main').innerText = fmtForeign.format(netArsMonthly / rate);
-            document.getElementById('res-net-sec').innerText = "≈ " + fmtArs.format(netArsMonthly);
+            document.getElementById('res-net-main').innerText = fmtForeign.format(netMonthly / rate);
+            document.getElementById('res-net-sec').innerText = "≈ " + fmtArs.format(netMonthly);
         }
 
-        setText('tbl-gross-m', fmtArs.format(grossArsMonthly));
-        setText('tbl-gross-a', fmtArs.format(grossArsAnnual)); 
+        // Table updates
+        setText('tbl-gross-m', fmtArs.format(baseGrossMonthly));
+        setText('tbl-gross-a', fmtArs.format(baseGrossMonthly * 13)); // Simple projection
         
-        document.getElementById('tbl-sac-m').innerText = "-"; // Removed Prorated
-        setText('tbl-sac-a', fmtArs.format(sacAmount));
+        // Handle Overtime Rows
+        if(otAmountMonthly > 0) {
+            document.getElementById('row-overtime').style.display = 'table-row';
+            setText('tbl-overtime-m', fmtArs.format(otAmountMonthly));
+            setText('tbl-overtime-a', fmtArs.format(otAmountMonthly * 13));
+        } else {
+            document.getElementById('row-overtime').style.display = 'none';
+        }
 
-        setText('tbl-social-m', fmtArs.format(socialMonthly));
-        setText('tbl-social-a', fmtArs.format(socialAnnual));
+        // Handle Union Rows
+        if(unionMonthly > 0) {
+            document.getElementById('row-union').style.display = 'table-row';
+            setText('tbl-union-m', fmtArs.format(unionMonthly));
+            setText('tbl-union-a', fmtArs.format(unionAnnual));
+        } else {
+            document.getElementById('row-union').style.display = 'none';
+        }
+
+        setText('tbl-social-m', fmtArs.format(ssMonthly));
+        setText('tbl-social-a', fmtArs.format(ssAnnual));
         setText('tbl-tax-m', fmtArs.format(taxMonthly));
         setText('tbl-tax-a', fmtArs.format(taxAnnual));
-        setText('tbl-ded-m', fmtArs.format(totalDedMonthly));
-        setText('tbl-ded-a', fmtArs.format(totalDedAnnual));
-        setText('tbl-net-m', fmtArs.format(netArsMonthly));
-        setText('tbl-net-a', fmtArs.format(netArsAnnual));
+        setText('tbl-net-m', fmtArs.format(netMonthly));
+        setText('tbl-net-a', fmtArs.format((netMonthly * 12) + (netMonthly))); // Approx
 
-        const effRate = (totalDedAnnual / grossArsAnnual) * 100;
-        document.getElementById('eff-rate').innerText = effRate.toFixed(1) + "%";
+        // Breakdown Info
+        setText('info-tax-base', fmtArs.format(finalTaxableAnnual));
+        document.getElementById('info-marginal').innerText = (taxResult.rate * 100).toFixed(0) + "%";
+    }
+
+    function calculateTax(income, brackets, multiplier) {
+        if (income <= 0) return { tax: 0, rate: 0 };
+        let tax = 0;
+        let marginalRate = 0;
+        let previousLimit = 0;
+
+        for (let b of brackets) {
+            // Adjust bracket limits by multiplier (Semester -> Annual)
+            const limit = b.limit === Infinity ? Infinity : b.limit * multiplier;
+            
+            if (income > limit) {
+                tax += (limit - previousLimit) * b.rate;
+                previousLimit = limit;
+            } else {
+                tax += (income - previousLimit) * b.rate;
+                marginalRate = b.rate;
+                break;
+            }
+            marginalRate = b.rate; // Catch-all for top bracket
+        }
+        return { tax, rate: marginalRate };
     }
 
     function setText(id, val) { document.getElementById(id).innerText = val; }
 
-    function getProgressiveTax(income) {
-        if (income <= 0) return 0;
-        if (income <= 1635136.56) return income * 0.05;
-        if (income <= 3270273.12) return 81756.83 + (income - 1635136.56) * 0.09;
-        if (income <= 4905409.68) return 228919.12 + (income - 3270273.12) * 0.12;
-        if (income <= 7358114.52) return 425135.51 + (income - 4905409.68) * 0.15;
-        if (income <= 14716229.04) return 793041.23 + (income - 7358114.52) * 0.19;
-        if (income <= 22074343.56) return 2191082.99 + (income - 14716229.04) * 0.23;
-        if (income <= 33111515.34) return 3883449.33 + (income - 22074343.56) * 0.27;
-        if (income <= 49667273.02) return 6863485.71 + (income - 33111515.34) * 0.31;
-        return 11995770.59 + (income - 49667273.02) * 0.35;
-    }
-
-    // Auto-format inputs on type (add dots for thousands)
+    // Input Masking
     document.querySelectorAll('input[type="text"]').forEach(input => {
         input.addEventListener('input', (e) => {
-            let cursor = e.target.selectionStart;
-            let val = e.target.value.replace(/[^0-9,]/g, ''); // Strip non-numeric, keep comma
-            // Add dots
+            let val = e.target.value.replace(/[^0-9,]/g, ''); 
             let parts = val.split(',');
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             e.target.value = parts.join(',');
         });
     });
-    
+
     updateHints();
 </script>
 
